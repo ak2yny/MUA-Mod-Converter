@@ -2104,7 +2104,7 @@ set "mqfbd=%pathonly%packages\generated\maps\package\menus"
 cd "%mqfb:~,-19%"
 call :VAR extractFB mqfb
 move /y "%mqs%" "%mqt%"
-find "%mq:\=/%" "%cfg%" >nul || echo %mq:\=/% %mq:\=/% model>>"%cfg%"
+find "%mq:\=/%" "%cfg%" >nul 2>nul || echo %mq:\=/% %mq:\=/% model>>"%cfg%"
 call :VAR buildFB cfg
 del "%cfg%"
 mkdir "%mqfbd%"
