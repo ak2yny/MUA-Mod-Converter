@@ -2518,18 +2518,6 @@ set "h=%hsFo%\*.*"
 EXIT /b 0
 
 
-:fetchTexInfo
-call :fTi 0x00000011
-EXIT /b
-:fTi
-(call :OptHead 1 & call :OptTexInfo 1 %1) >%optSet%
-(call :Optimizer)>"%pathname%.txt"
-EXIT /b
-
-:Optimizer
-%sgOptimizer% "%infile%" "%outfile%" %optSet% || goto Errors
-EXIT /b
-
 :writeOpts
 set c=0
 for %%o in (%opts%) do set /a c+=1
@@ -2540,6 +2528,10 @@ EXIT /b
 :wOentries
 set i=%1
 for /f "tokens=%i%" %%o in ("%opts%") do call :%%o %1
+EXIT /b
+
+:Optimizer
+%sgOptimizer% "%infile%" "%outfile%" %optSet% || goto Errors
 EXIT /b
 
 :optHead
