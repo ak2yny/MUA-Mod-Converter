@@ -2,6 +2,7 @@
 
 Mod converter to convert mods from MarvelMods for MUA 2006 PC to other platforms.
 Based on [Raven-Formats scripts](https://github.com/EthanReed517/Marvel-Mods-Batch-Scripts/blob/main/Raven-Formats%20Scripts/(RF)AIO.bat), but outdated.
+Currently supports conversion to Steam, PS3, PS2 and PSP.
 
 For those who like to add their insight to MUA console modding, PS4 and X1 sound formats or other workflows.
 
@@ -40,7 +41,8 @@ To change which platform it should convert to, go to line 24 and change `set For
 ## Known issues
 
   - Packages are converted using .xmlb extension, but mods usually include .engb files. Combat packages are fixed automatically, but non-combat packages aren't because they should only include certain files. The only .xml binary file included in the non-combat package should be the talents file, which is set-up in the cfgBuilder_info.cfg as .engb, so that shouldn't be a problem. It will be a problem if the non-combat package includes special .xml binary files.
-  - Skins aren't converted because they can have normal texture maps, which require DXT5. Skins have to be manually converted, if necessary.
+  - Skins aren't converted because they can have normal texture maps, which require DXT5. Skins have to be manually converted, if necessary. (Step 2)
+  - 6th generation console (and XML2 PC) conversions don't convert any IGB files at all, because the platforms don't support Alchemy 5 processes. Replace the IGB files with platform compatible assets. (Step 2)
   - Doesn't work in locations that require elevated (admin) permission (no matter if the user has these permissions or not).
 
 
