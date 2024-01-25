@@ -2069,14 +2069,27 @@ set nr=%pb:~-5%
 set name=%pb:~,-6%
 if /i %nr:~,1%==_ set nr=%nr:~1%& set name=%pb:~,-5%
 call :isNumber %nr% || EXIT /b
-set pdone=%pdone%%nr% 
 call :VAR decompile pkgb
 move /y "%pkgb%.%customext%" "%pkg%"
 call :VAR buildCFG pkg
 if /i %pn:~-3% NEQ _nc call :VAR updateCFG cfg
 call :VAR buildFB cfg
 move /y "%cfg:~,-4%" "%fbp%"
+if ""=="%pdone%" call :MCaddFS
+set pdone=%pdone%%nr% 
 del "%pkg%" "%cfg%"
+EXIT /b
+:MCaddFS
+REM Uses data from the first package. If this is a NC pkg, the fightstyle package will be incomplete.
+if ""=="%name%" call :ReadHSlxml name hs
+if ""=="%name%" echo Herostat seems to be missing or corrupt. Conversion incomplete. & goto Errors
+if exist "%pathonly%packages\generated\characters\%name%_fightstyles.pkgb" EXIT /b
+set "fbp=%pathonly%packages\generated\characters\%name%_fightstyles.fb"
+set "fscfg=%pathonly%%name%_fightstyles.cfg"
+type "%cfg%" | findstr /bil "data/" >"%fscfg%"
+call :VAR buildFB fscfg
+move /y "%fscfg:~,-4%" "%fbp%"
+del "%fscfg%"
 EXIT /b
 :MCaddSkin
 echo %pdone% | find "%1 " >nul && EXIT /b
