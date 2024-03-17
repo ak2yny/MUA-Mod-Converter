@@ -2117,15 +2117,15 @@ move /y "%cfg:~,-4%" "%fbp%"
 del "%cfg%"
 EXIT /b
 :MCaddMannequin
-if ""=="%mqfb%" EXIT /b
-set subfolder=false
-set deletepkg=true
-set copybuild=false
-set "cfg=%mqfb%.cfg"
 set "mq=ui\models\mannequin\%*"
 set "mqs=%pathonly%%mq%"
 set "mqt=%mqfb:~,-19%%mq%"
 set "mqfbd=%pathonly%packages\generated\maps\package\menus"
+if ""=="%mqfb%" goto MCmoveMq
+set subfolder=false
+set deletepkg=true
+set copybuild=false
+set "cfg=%mqfb%.cfg"
 cd "%mqfb:~,-19%"
 call :VAR extractFB mqfb
 move /y "%mqs%" "%mqt%"
@@ -2134,6 +2134,11 @@ call :VAR buildFB cfg
 del "%cfg%"
 mkdir "%mqfbd%"
 copy /y "%mqfb%" "%mqfbd%\characters_heads.fb"
+EXIT /b
+:MCmoveMq
+set "mqt=%CM%\characters_heads\%mq%"
+mkdir "%CM%\characters_heads\ui\models\mannequin"
+move /y "%mqs%" "%mqt%"
 EXIT /b
 
 :extractFB
