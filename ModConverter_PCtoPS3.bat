@@ -383,6 +383,8 @@ call :checkTools cfgBuilder
 call :czs8
 call :xml
 call :sgO
+REM Temporary manual option. Leave undefined to exclude skins from conversion; define as somthing that will never be a folder name on your PC (or at least the mod folder) to include.
+set ModConverterIncludeSkins=
 set inext=.zss, .zsm
 del "%erl%" "%xco%" "%rfo%" "%tem%" "%tem%c" "%tem%m" "%cvd%.json" "%cvd%.zss" %optSetT%
 if ""=="%args%" call :convCCL args
@@ -2027,7 +2029,7 @@ CLS
 REM Converting everything to Preferred Texture Format, this can't be done on all skins, so they have to be excluded
 set format=%PTFMT%
 set isExclude=exclude
-if %MCTextrs%==true for /f "delims=" %%i in ('dir /s /b *.igb ^| find /i /v "%cd%\actors\"') do (
+if %MCTextrs%==true for /f "delims=" %%i in ('dir /s /b *.igb ^| find /i /v "%cd%\actors%ModConverterIncludeSkins%\"') do (
   set "infile=%%~i"
   call :VAR ConvertIGB infile
 )
