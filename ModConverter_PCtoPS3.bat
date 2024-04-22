@@ -650,7 +650,7 @@ echo --------------------
 echo.
 EXIT /b
 :PackageCloner
-call :readNumber || EXIT /b
+call :readNumber nameonly || EXIT /b
 findstr /eil "%pkgnm%.pkgb %pkgnm%_nc.pkgb" <"%tpc%" >nul 2>nul || set /a x+=1
 for %%a in ("%fullpath%") do echo %%~a>>"%tpc%"
 EXIT /b
@@ -681,7 +681,7 @@ set pkgn=na
 goto srcNum
 
 :clonePKG
-call :readNumber || EXIT /b
+call :readNumber nameonly || EXIT /b
 REM To only clone one number even if they are named differently, use %pkgn%
 echo %cmplt% | find "-%pkgnm%%NC%-" && EXIT /b
 set cmplt=%cmplt%-%pkgnm%%NC%-
@@ -726,10 +726,10 @@ EXIT /b 0
 set "pcn=%e%; $psn = ($ps -split '(?<=hud_head_%pkgn%.*\r?\n)')[0] + ($e -join ""`n"")"
 EXIT /b 2
 
-:readNumber
+:readNumber var
 set NC=
-for /f "tokens=2" %%s in ("%nameonly%") do EXIT /b 1
-set "pkgnm=%nameonly%"
+call set "pkgnm=%%%1%%"
+for /f "tokens=2" %%s in ("%pkgnm%") do EXIT /b 1
 if "%pkgnm:~-3%"=="_nc" set "pkgnm=%pkgnm:~,-3%" & set NC=_nc
 set pkgn=%pkgnm:~-5%
 set pkgn=%pkgn:_=%
@@ -814,7 +814,7 @@ set in=defaultman
 for /f "delims=" %%p in ('dir /b "%tp%*_%cn%*.pkgb"') do set "nameonly=%%~np" & goto SH4p2
 goto SH4p3
 :SH4p2
-call :readNumber || goto SH4p3
+call :readNumber nameonly || goto SH4p3
 set "in=%pkgnm:~,-5%"
 if "_"=="%in:~-1%" set "in=%in:~,-1%"
 :SH4p3
@@ -2013,8 +2013,8 @@ EXIT /b
 
 :ModConvert
 REM currently only from PC mods with loose files.
-for /f "delims=" %%f in ('dir /s /b *.fb') do if "%%~nxf"=="characters_heads.fb" set "mqfb=%%~f"
-for /f "delims=" %%m in ('dir /ad /b /s ^| find "\data"') do (
+for /f "delims=" %%f in ('dir /s /b *.fb ^| findstr /eil "characters_heads.fb"') do set "mqfb=%%~f"
+for /f "delims=" %%m in ('dir /ad /b /s ^| find /i "\data"') do (
   set "fullpath=%%~dpmtemp.txt"
   cd /d "%%~dpm"
   call :filesetup
@@ -2036,12 +2036,31 @@ if %MCTextrs%==true for /f "delims=" %%i in ('dir /s /b *.igb ^| find /i /v "%cd
 set outfile=
 del "%pathname%.txt"
 echo %ForPltfrm% | findstr /i "Steam PC" >nul && goto MC3pc
-for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\characters\*.pkgb"') do (
+set pkgp=packages\generated\characters
+set subfolder=false
+set deletepkg=true
+mkdir "%pathonly%tmp"
+cd "%pathonly%tmp"
+for /f "delims=" %%p in ('dir /b "%pathonly%*.fb" ^| findstr /eilv "characters_heads.fb"') do (
+  set "pn=%%~np"
+  set "fbp=%pathonly%%%~p"
+  call :VAR extractFB fbp
+)
+%fixcurrd%
+robocopy /s "%pathonly%tmp" "%cd%" /XO /XC /XN
+rd /s /q "%pathonly%tmp"
+mkdir "%pathonly%%pkgp%"
+for /f "delims=" %%p in ('dir /b /s "%pathonly%%pkgp%\*.pkgb"') do (
   set "pkgb=%%~p"
   call :MCpkg
 )
-cd "%pathonly%packages\generated\characters"
+call :MCgetIntName
 for /f "delims=" %%s in ('dir /b "%pathonly%actors\*.igb" ^| findstr /rx "[0-9][0-9][0-9][0-9][0-9]*.igb"') do call :MCaddSkin %%~ns
+for /f "delims=" %%p in ('dir /b "%pathonly%*.cfg"') do (
+  set "cfg=%pathonly%%%~p"
+  set "pn=%%~np"
+  call :MCbuildPkg
+)
 for /f "delims=" %%m in ('dir /b "%pathonly%ui\models\mannequin\*.igb"') do call :MCaddMannequin %%~nxm
 robocopy /s "%pathonly:~,-1%" "%CM%" *.zsm *.zss *.fb /XF "%mqfb%"
 copy "%hs%" "%CM%\"
@@ -2062,61 +2081,61 @@ for /f "delims=" %%s in ('dir /s /b sounds\*.zsm sounds\*.zss') do (
 EXIT /b
 :MCpkg
 for %%p in ("%pkgb%") do set pn=%%~np
-set "pkg=%pathonly%%pn%.pkg"
-set "fbp=%pkgb:~,-4%fb"
+call :readNumber pn || EXIT /b
+set "pkg=%pathonly%%pn%.fb.pkg"
 set "cfg=%pkg:~,-3%cfg"
-set pb=%pn%
-if /i %pn:~-3%==_nc set pb=%pn:~,-3%
-set nr=%pb:~-5%
-set name=%pb:~,-6%
-if /i %nr:~,1%==_ set nr=%nr:~1%& set name=%pb:~,-5%
-call :isNumber %nr% || EXIT /b
 call :VAR decompile pkgb
 move /y "%pkgb%.%customext%" "%pkg%"
 call :VAR buildCFG pkg
-if /i %pn:~-3% NEQ _nc call :VAR updateCFG cfg
+del "%pkg%"
+if ""=="%pdone%" call :MCaddFS
+set pdone=%pdone%%pkgn% 
+EXIT /b
+:MCgetIntName
+if ""=="%pkgnm%" if defined pn (
+  call :readNumber pn || EXIT /b
+) else EXIT /b 1
+set name=%pkgnm:~,-6%
+if "%pkgn:~4%"=="" set name=%pkgnm:~,-5%
+EXIT /b
+:MCbuildPkg
+call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
+set "fbp=%pathonly%%pkgp%\%pn%"
 call :VAR buildFB cfg
 move /y "%cfg:~,-4%" "%fbp%"
-if ""=="%pdone%" call :MCaddFS
-set pdone=%pdone%%nr% 
-del "%pkg%" "%cfg%"
+del "%cfg%"
 EXIT /b
 :MCaddFS
 REM Uses data from the first package. If this is a NC pkg, the fightstyle package will be incomplete.
+call :MCgetIntName
 if ""=="%name%" call :ReadHSlxml name hs
 if ""=="%name%" echo Herostat seems to be missing or corrupt. Conversion incomplete. & goto Errors
-if exist "%pathonly%packages\generated\characters\%name%_fightstyles.pkgb" EXIT /b
-set "fbp=%pathonly%packages\generated\characters\%name%_fightstyles.fb"
-set "fscfg=%pathonly%%name%_fightstyles.cfg"
+if exist "%pathonly%%pkgp%\%name%_fightstyles.pkgb" EXIT /b
+set "fscfg=%pathonly%%name%_fightstyles.fb.cfg"
+if exist "%fscfg%" EXIT /b
 type "%cfg%" | findstr /bil "data/" >"%fscfg%"
-call :VAR buildFB fscfg
-move /y "%fscfg:~,-4%" "%fbp%"
-del "%fscfg%"
 EXIT /b
 :MCaddSkin
 echo %pdone% | find "%1 " >nul && EXIT /b
-find "%1" *.pkgb >nul && EXIT /b
+find "%1" "%pathonly%%pkgp%\*.pkgb" >nul 2>nul && EXIT /b
 set skin=%1
 findstr /ir "skin.*%skin:~-2%.;" <"%hs%" || echo Missing skin: %1 || goto Errors
 if ""=="%name%" call :ReadHSlxml name hs
-if ""=="%name%" echo Couldn't add skin: %1 & goto Errors
 set "dpn=%pathonly%%name%_%1"
-set "fbp=%pathonly%packages\generated\characters\%name%_%1.fb"
-set "fbpn=%fbp:~,-3%_nc.fb"
-set "cfg=%dpn%.cfg"
+set "cfg=%pathonly%%name%_%1.fb.cfg"
+set "cfgn=%cfg:~,-7%_nc.fb.cfg"
+if exist "%cfg%" if exist "%cfgn%" EXIT /b
+if exist "%cfg%" set "cfg=%tem%"
+if ""=="%name%" echo Couldn't add skin: %1 & goto Errors
 call :ReadHSlxml characteranims hs
-echo actors/%1.igb actors/%1.igb actorskin>>"%cfg%"
+echo actors/%1.igb actors/%1.igb actorskin>"%cfg%"
 echo actors/%characteranims%.igb actors/%characteranims%.igb actoranimdb>>"%cfg%"
 for /f "delims=" %%i in ('dir /b "%pathonly%textures\ui\*.igb"') do echo textures/ui/%%i textures/ui/%%i texture>>"%cfg%"
 for /f "delims=" %%t in ('dir /b "%pathonly%data\talents\*.???b"') do echo data/talents/%%t data/talents/%%t xml_talents>>"%cfg%"
 echo HUD/hud_head_%1.igb HUD/hud_head_%1.igb model>>"%cfg%"
-call :VAR buildFB cfg
-move /y "%cfg:~,-4%" "%fbpn%"
+if not exist "%cfgn%" copy "%cfg%" "%cfgn%"
+if "%cfg:~-3%"=="tmp" EXIT /b
 echo actors/%characteranims%_4_combat.igb actors/%characteranims%_4_combat.igb actoranimdb>>"%cfg%"
-call :VAR updateCFG cfg
-call :VAR buildFB cfg
-move /y "%cfg:~,-4%" "%fbp%"
-del "%cfg%"
 EXIT /b
 :MCaddMannequin
 set "mq=ui\models\mannequin\%*"
@@ -2124,9 +2143,6 @@ set "mqs=%pathonly%%mq%"
 set "mqt=%mqfb:~,-19%%mq%"
 set "mqfbd=%pathonly%packages\generated\maps\package\menus"
 if ""=="%mqfb%" goto MCmoveMq
-set subfolder=false
-set deletepkg=true
-set copybuild=false
 set "cfg=%mqfb%.cfg"
 cd "%mqfb:~,-19%"
 call :VAR extractFB mqfb
@@ -2156,14 +2172,6 @@ move /y "%pathonly%%namextns%.pkg" "%pathname%\"
 move /y "%pathonly%%namextns%.cfg" "%pathname%\"
 del "%pathonly%on"
 del "%pathonly%off"
-if %copybuild%==false EXIT /b
-(
- echo @echo off
- echo set operation=buildFBnew
- more +%l% "%~f0"
-)>"%pathname%\buildFB.bat"
-if exist "%~dp0fbBuilder.exe" ( copy /y "%~dp0fbBuilder.exe" "%pathname%"
-) else for /f "delims=" %%a in ('where fbBuilder 2^>nul') do copy /y "%%~fa" "%pathname%"
 EXIT /b
 
 :buildFB
