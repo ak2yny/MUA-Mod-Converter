@@ -10,8 +10,10 @@ For those who like to add their insight to MUA console modding, PS4 and X1 sound
 ## Instructions
 
 (example for PS3)
-  1. Extract a mod into any folder.
-  2. Make any modifications for the mod in this folder, such as installing boosters, fixing skins, etc.
+  1. Extract a mod into any empty folder.
+     - For **boosters**, but only if the mod's already in the game and only for **console** versions: Instead get the .fb packages from the required mod/character from the assets and put them into any empty folder.
+     - For **boosters**, but only if the mod's already in the game and only for **PC** versions: Instead extract the booster into any empty folder.
+  2. Make any modifications for the mod in this folder, such as installing boosters, fixing skins, etc. *
   3. Extract these tools into the same folder (complete contents).
      If necessary, install the requirements.
      Note: there is no build that you can extract, currently.
@@ -22,9 +24,33 @@ For those who like to add their insight to MUA console modding, PS4 and X1 sound
      Use the contents of this folder for adding the mod to the PS3:
      - packages go into the assets
      - add the herostat to the PS3 herostat.engb (with OHS or your preferred method) and add that to assets > data
-     - sounds go separate
+     - sounds go separate (boosters or mods without sounds don't need these)
 
 To change which platform it should convert to, go to line 24 and change `set ForPltfrm=PS3`. E.g. `set ForPltfrm=Steam`. Supported platforms are in the remarks on line 23.
+
+#### * Example Modifications at Step 2
+
+Install Boosters:
+  - Extract the booster into the same folder (containing either the required mod, or the required character's .fb package files).
+    - The folder structure must match exactly (actors of the booster goes into actors of the already extracted mod, etc.).
+    - If the folder doesn't contain the required mod, but .fb packages, the `data` folder of the booster must end up in the same folder as the .fb packages.
+  - Alternatively to adding .fb packages when the mod's already installed, you can find the required mod for the PC again and extract it into an empty folder (step 1) and continue at step 2 (extract the booster as explained above). After conversion, replace the unboosted .fb packages in the assets with the new, boosted ones.
+  - IMPORTANT: Boosters for PC mods can be converted separately, no mod required. If the booster doesn't come with sounds and .igb assets are compatibele (or aren't included), the booster doesn't need any conversion at all.
+
+Install Skins:
+  - Follow the skin installation guide over [here](https://marvelmods.com/forum/index.php?msg=201703).
+  - Instead of the game files (or MO2 mod folder), install the skins into the extracted mod's folders (e.g. actors, hud).
+
+Convert Skins:
+  1. Open the skin (from the extracted mod folder) in Finalizer.
+  2. Add optimizations
+     - For next-gen consoles and PC add `Convert igGeometryAttr to igGeometryAttr2`. This is also required for PSP, but it doesn't work (we don't know how at this time.) ![igGeometryAttr2](https://github.com/ak2yny/MUA-Mod-Converter/assets/92672223/73821bac-7844-4168-8934-123aee942c05)
+     - If necessary, add the optimization `Convert images` (example configuration for PS3 below) ![configurationForPS3](https://github.com/ak2yny/MUA-Mod-Converter/assets/92672223/28431602-2c22-47e0-b66e-3a8627bc6e24)
+     - Only if there is a normal map (DXT5 format) and only for PS3, add a text file with the name specified in the configuration (NormalMaps.txt in the screenshot above) to the same folder as the skin .igb file and add the normal map's texture name on a new line (just the name and extension). Other platforms need a different normal texture map or don't support normal maps at all.
+     - Other optimizations might help, depending on the target platform and skin specifications.
+  3. Run the optimizations.
+  4. Save the file.
+  5. Optionally, save the optimization set for future use.
 
 
 ## Requirements
