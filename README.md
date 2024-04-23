@@ -33,7 +33,7 @@ To change which platform it should convert to, go to line 24 and change `set For
 Install Boosters:
   - Extract the booster into the same folder (containing either the required mod, or the required character's .fb package files).
     - The folder structure must match exactly (actors of the booster goes into actors of the already extracted mod, etc.).
-    - If the folder doesn't contain the required mod, but .fb packages, the `data` folder of the booster must end up in the same folder as the .fb packages.
+    - If the folder doesn't contain the required mod, but .fb packages, the `data`, `actors` etc. folders of the booster must end up in the same folder as the .fb packages.
   - Alternatively to adding .fb packages when the mod's already installed, you can find the required mod for the PC again and extract it into an empty folder (step 1) and continue at step 2 (extract the booster as explained above). After conversion, replace the unboosted .fb packages in the assets with the new, boosted ones.
   - IMPORTANT: Boosters for PC mods can be converted separately, no mod required. If the booster doesn't come with sounds and .igb assets are compatibele (or aren't included), the booster doesn't need any conversion at all.
 
