@@ -2051,7 +2051,7 @@ for /f "delims=" %%p in ('dir /b "%pathonly%*.fb" ^| findstr /eilv "characters_h
 robocopy /s "%pathonly%tmp" "%cd%" /XO /XC /XN
 rd /s /q "%pathonly%tmp"
 mkdir "%pathonly%%pkgp%"
-for /f "delims=" %%p in ('dir /b /s "%pathonly%%pkgp%\*.pkgb"') do (
+for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*.pkgb"') do (
   set "pkgb=%%~p"
   call :MCpkg
 )
@@ -2082,13 +2082,13 @@ for /f "delims=" %%s in ('dir /s /b sounds\*.zsm sounds\*.zss') do (
 EXIT /b
 :MCpkg
 for %%p in ("%pkgb%") do set pn=%%~np
-call :readNumber pn || EXIT /b
 set "pkg=%pathonly%%pn%.fb.pkg"
 set "cfg=%pkg:~,-3%cfg"
 call :VAR decompile pkgb
 move /y "%pkgb%.%customext%" "%pkg%"
 call :VAR buildCFG pkg
 del "%pkg%"
+call :readNumber pn || EXIT /b
 if ""=="%pdone%" call :MCaddFS
 set pdone=%pdone%%pkgn% 
 EXIT /b
@@ -2100,8 +2100,10 @@ set name=%pkgnm:~,-6%
 if "%pkgn:~4%"=="" set name=%pkgnm:~,-5%
 EXIT /b
 :MCbuildPkg
-call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
+echo "%cfg%" | find /i "\characters\%pn~,-3%" >nul && call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
 set "fbp=%pathonly%%pkgp%\%pn%"
+for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*%pn:~,-3%.pkgb"') do set "fbp=%%~dpn
+p.fb"
 call :VAR buildFB cfg
 move /y "%cfg:~,-4%" "%fbp%"
 del "%cfg%"
