@@ -22,7 +22,7 @@ For those who like to add their insight to MUA console modding, PS4 and X1 sound
   6. Run ModConverter_PCtoPS3.bat
   7. A new folder with the same name plus a " - for PS3" suffix is created next to the mod folder.
      Use the contents of this folder for adding the mod to the PS3:
-     - packages go into the assets
+     - packages go into the assets (IMPORTANT: All .pkgb files found in the mod are cloned. Some of them might be useless. Adding useless packages might even harm the game.)
      - add the herostat to the PS3 herostat.engb (with OHS or your preferred method) and add that to assets > data
      - sounds go separate (boosters or mods without sounds don't need these)
 
