@@ -2051,7 +2051,7 @@ for /f "delims=" %%p in ('dir /b "%pathonly%*.fb" ^| findstr /eilv "characters_h
 robocopy /s "%pathonly%tmp" "%cd%" /XO /XC /XN
 rd /s /q "%pathonly%tmp"
 mkdir "%pathonly%%pkgp%"
-for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*.pkgb"') do (
+for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\*.pkgb"') do (
   set "pkgb=%%~p"
   call :MCpkg
 )
@@ -2063,7 +2063,7 @@ for /f "delims=" %%p in ('dir /b "%pathonly%*.cfg"') do (
   call :MCbuildPkg
 )
 for /f "delims=" %%m in ('dir /b "%pathonly%ui\models\mannequin\*.igb"') do call :MCaddMannequin %%~nxm
-robocopy /s "%pathonly:~,-1%" "%CM%" *.zsm *.zss *.fb /XF "%mqfb%"
+robocopy /s "%pathonly:~,-1%" "%CM%" *.zsm *.zss & robocopy /s "%pathonly%packages" "%CM%\packages" *.fb
 copy "%hs%" "%CM%\"
 goto ModConvert4
 :MC3pc
