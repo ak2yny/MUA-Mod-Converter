@@ -49,7 +49,7 @@ REM Define a specific subfolder to move WAV files into. Only for x_voice.
 set subfolder=
 REM Move? (move to the folder next to the JSON, as defined =destination; use the source file - when conv. move the files back and make a backup of the unconverted files =source; when conv. move the files back to the source and replace the unconverted files =replace)
 REM WARNING for destination: Avoid identical names if dropping files from multiple sources.
-set movewhr=destination
+set movewhr=source
 REM Remove the header of WAV files? (only useful for old versions of Zsnd).
 REM (no, my portable Zsnd is new =false; yes, default, converts all WAVs =true)
 set remHead=true
@@ -2102,8 +2102,7 @@ EXIT /b
 :MCbuildPkg
 echo "%cfg%" | find /i "\characters\%pn~,-3%" >nul && call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
 set "fbp=%pathonly%%pkgp%\%pn%"
-for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*%pn:~,-3%.pkgb"') do set "fbp=%%~dpn
-p.fb"
+for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*%pn:~,-3%.pkgb"') do set "fbp=%%~dpnp.fb"
 call :VAR buildFB cfg
 move /y "%cfg:~,-4%" "%fbp%"
 del "%cfg%"
