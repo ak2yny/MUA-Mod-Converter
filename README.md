@@ -58,7 +58,7 @@ Convert Skins:
   - [Raven-Formats (by nikita488)](https://github.com/nikita488/raven-formats) or Python 3.8+
   - Alchemy 5 (for IGB asset evaluation and conversion)
   - (Windows with Powershell and .Net feature enabled)
-  - FB tools (by Norrin Radd) for consoles
+  - [FB tools](https://github.com/EthanReed517/Marvel-Mods-Batch-Scripts/tree/main/FB%20Package%20Tools/FB%20Tools) (by Norrin Radd) for consoles
   - MFAudio (by Muzzle Flash) for Playstation platforms
   - DSPADPCM and dsptool.dll from the GameCube SDK (by Nintendo) for GC and Wii
   - FSbank tools (by Firelight Technologies 2016) for Steam (only requires fsbankcl.exe and its libraries)
