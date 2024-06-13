@@ -323,7 +323,8 @@ call :platW .vag
 set g=2
 set t=GAMECUBE DXT
 set z=300000
-set PTFMT=X_8
+set PTFMT=TILED_X_8_PSP
+REM to save space, use TILED_X_4_PSP
 set ConsGen=PSP
 REM No GlobalColor, Compatible with some Alchemy 5, native files are PSP specific
 EXIT /b
