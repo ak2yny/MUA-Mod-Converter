@@ -2056,7 +2056,7 @@ for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\*.pkgb"') do (
   set "pkgb=%%~p"
   call :MCpkg
 )
-call :MCgetIntName
+if ""=="%name%" call :MCgetIntName
 for /f "delims=" %%s in ('dir /b "%pathonly%actors\*.igb" ^| findstr /rx "[0-9][0-9][0-9][0-9][0-9]*.igb"') do call :MCaddSkin %%~ns
 for /f "delims=" %%p in ('dir /b "%pathonly%*.cfg"') do (
   set "cfg=%pathonly%%%~p"
@@ -2101,7 +2101,7 @@ set name=%pkgnm:~,-6%
 if "%pkgn:~4%"=="" set name=%pkgnm:~,-5%
 EXIT /b
 :MCbuildPkg
-echo "%cfg%" | find /i "\characters\%pn~,-3%" >nul && call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
+echo %pn% | findstr /bil "%name%" >nul && call :isNumber %pn:~-7,4% && call :VAR updateCFG cfg
 set "fbp=%pathonly%%pkgp%\%pn%"
 for /f "delims=" %%p in ('dir /b /s "%pathonly%packages\generated\*%pn:~,-3%.pkgb"') do set "fbp=%%~dpnp.fb"
 call :VAR buildFB cfg
@@ -2245,6 +2245,12 @@ EXIT /b 0
 :shared_powerups.xmlb
 set format=%dir%
 EXIT /b 0
+REM cfgBuilder_info makes them shared_powerups
+REM :common_ents.xml
+REM :item_ents.xmlb
+REM :shared_nodes.xmlb
+REM :shared_nodes_combat.xmlb
+REM :aipatterns.xml
 
 :buildCFG
 call :checkCBI
