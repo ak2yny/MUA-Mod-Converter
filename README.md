@@ -9,7 +9,7 @@ For those who like to add their insight to MUA console modding, PS4 and X1 sound
 
 ## Requirements
 
-  - [Raven-Formats (by nikita488)](https://github.com/nikita488/raven-formats) or Python 3.8+
+  - [Raven-Formats (by nikita488)](https://github.com/nikita488/raven-formats) or Python 3.9+
   - Alchemy 5 (for IGB asset evaluation and conversion)
   - (Windows with Powershell and .Net feature enabled)
   - [FB tools](https://github.com/EthanReed517/Marvel-Mods-Batch-Scripts/tree/main/FB%20Package%20Tools/FB%20Tools) (by Norrin Radd) for consoles
