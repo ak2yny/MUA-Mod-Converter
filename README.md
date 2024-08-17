@@ -70,7 +70,7 @@ Convert Skins:
   - Packages are converted using .xmlb extension, but mods usually include .engb files. Combat packages are fixed automatically, but non-combat packages aren't because they should only include certain files. The only .xml binary file included in the non-combat package should be the talents file, which is set-up in the cfgBuilder_info.cfg as .engb, so that shouldn't be a problem. It will be a problem if the non-combat package includes special .xml binary files.
   - Skins aren't converted because they can have normal texture maps, which require DXT5. Skins have to be manually converted, if necessary. (Step 2)
   - 6th generation console (and XML2 PC) conversions don't convert any IGB files at all, because the platforms don't support Alchemy 5 processes. Replace the IGB files with platform compatible assets. (Step 2)
-  - Doesn't work in locations that require elevated (admin) permission (no matter if the user has these permissions or not).
+  - Doesn't work in directories that require elevated (admin) permission (no matter if the user has these permissions or not).
 
 
 ## Credits
