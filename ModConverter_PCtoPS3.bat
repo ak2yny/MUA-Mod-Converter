@@ -341,6 +341,7 @@ goto 6Setup
 :PS2Cfg
 set t=%t% DXT
 set PTFMT=RGB_888_24
+REM or X_8 ?
 call :platW .vag
 :6Setup
 set sl=4
@@ -393,8 +394,9 @@ if defined args (
  for %%p in (%args%) do 2>nul pushd "%%~p" && call :ModConvert
 ) else call :ModConvert
 GOTO End
-:startZSconvert
 :starteditZSSZSM
+set any=true
+:startZSconvert
 :startextract
 set inext=.zss, .zsm
 goto czs8
@@ -424,6 +426,7 @@ call :checkPlat
 set movewhr=%movewhr:destination=source%
 set askname=update
 set recursive=true
+set any=true
 goto czs
 :startcombine
 set inext=.json
@@ -1257,9 +1260,18 @@ call :getSkinInfo
 set "outfile=%infile%"
 set InstType=Mod
 echo "%infile%" | find /i "mannequin" >nul && set InstType=mannequin
-echo %igGTF% | findstr /i "%t%" >nul && set opts=optConv
+REM set format=%PTFMT%
+set opts=
+echo %igGTF% | findstr /i "%t%" >nul && set opts=optConv %format%
+echo %format% | find /i "_X_" >nul && call :CI2
 echo %igGA% | find "1" >nul && goto SE%ConsGen%
 goto SEmain
+:CI2
+if ""=="%opts%" EXIT /b
+set opts=optConv RGBA_8888_32, %opts%
+if "%igGTF:IG_GFX_TEXTURE_FORMAT_=%"=="RGBA_DXT1" EXIT /b
+set opts=optConv RGBA_DXT1, %opts%
+EXIT /b
 :SkinEditFN
 call :filesetup
 if "%1"=="" call :getSkinName
@@ -1389,6 +1401,7 @@ goto Wopt
 
 :extract
 set "oj=%outfile%%nameonly%"
+if %recursive%==true if ""=="%outfile%" set "oj=%pathonly%%oj%"
 call :numberedBKP oj
 set "oj=%oj%.json"
 call :numberedBKP oj
@@ -1424,21 +1437,21 @@ set PF=%PF:360=XENO%
 call :extract
 echo converting . . .
 if %ForPltfrm%==Steam goto ZsToFsb
+set "oldjson=%oj%"
+call :defineJSON
 for /f "delims=" %%i in ('dir /b /s "%oj:~,-5%\*.wav" 2^>nul') do (
  set "fullpath=%%~i"
  call :ZSc2
 )
 call :numberedBKP oj
-set "oldjson=%oj%"
-set "newjson=%oj%"
 set "fullpath=%oj%"
 call :filesetup
 call :PSfl PSconvertZS
 goto combine
 :ZSc2
 call :filesetup
-call :formatW || EXIT /b
 call :srchInfo
+call :cFmt
 call :%StT% || EXIT /b
 EXIT /b
 
@@ -1677,6 +1690,7 @@ if %ConsGen%==8th EXIT /b
 for %%f in (%zf%) do call echo %%%%f%% | find /i "%ForPltfrm%" >nul && set formatW=%%f&& goto cFmt
 EXIT /b
 :cFmt
+if ""=="%xtnsonly%" EXIT /b 1
 set StT=%xtnsonly:~1%To%xtnsonly:~1%
 if ""=="%formatW%" EXIT /b 0
 set StT=%xtnsonly:~1%To%formatW:~1%
@@ -2497,8 +2511,8 @@ REM Also converts string numbers to int, but fails with special characters (pars
 echo $ind = 0
 echo [IO.File]::WriteAllLines("%newjson%", (($sf ^| ConvertTo-Json) -split '\r?\n' ^| ForEach-Object {
 echo   if ($_ -match "[}\]]$rQ") {$ind = [Math]::Max($ind - 4, 0)}
-echo   $line = (' ' * $ind) + (([Regex]::Replace($_, "\\u(?<Value>[a-zA-Z0-9]{4})", { param($m) ([char]([int]::Parse($m.Groups['Value'].Value, [System.Globalization.NumberStyles]::HexNumber))).ToString() })).TrimStart() -replace ":\s+$rQ", ': ')
-echo   if ($_ -match "[\{\[]$rQ") {$ind += 4}
+echo   $line = (' ' * $ind) + ($_.TrimStart() -replace ":\s+$rQ", ': ' -replace '\\u0027', "'" -replace '(: )"([0-9]+)"(?!:)', '$1$2')
+echo   if ($_ -match "[\{\[]$rQ") {$ind += 4; if ($_ -match "[}\]]$rQ") {$line = "    $line"}}
 echo   $line
 echo }), (New-Object System.Text.UTF8Encoding $False))
 EXIT /b
@@ -2633,10 +2647,10 @@ echo storeBoundingVolume = false
 EXIT /b
 
 :optConv
-echo %format% | find /i "DXT" >nul && set "order=DX" || set "order=DEFAULT"
+echo %2 | find /i "DXT" >nul && set "order=DX" || set "order=DEFAULT"
 echo [OPTIMIZATION%1]
 echo name = igConvertImage
-echo format = %igTF%%format%
+echo format = %igTF%%2
 echo sourceFormat = invalid
 echo order = IG_GFX_IMAGE_ORDER_%order%
 echo isExclude = %isExclude%
@@ -2670,7 +2684,6 @@ LAND:LAND
 PAIN:PAIN
 PICKUP:PICKUP
 LIFT:PICKUP
-THROW:THROW
 FLYBEGIN:FLYBEGIN
 FLYEND:FLYEND
 CANTGO:CANTGO
@@ -2686,8 +2699,10 @@ NOWORK:NOWORK
 RESPAFFIRM:RESPAFFIRM
 TAUNTKD:TAUNTKD
 THROWTAUNT:THROWTAUNT
+THROW:THROW
 TOOHEAVY:TOOHEAVY
 VICTORY:VICTORY
+XTREME2:XTREME2
 XTREME:XTREME
 BORED:BORED
 6_STATS:STATS
@@ -2696,7 +2711,6 @@ SIGHT:SIGHT
 STRUGGLE:STRUGGLE
 LOCKED:LOCKED
 CANTTALK:CANTTALK
-XTREME2:XTREME2
 ) do for /f "tokens=1* delims=:" %%a in ("%%s") do echo "%nameonly: =_%" | findstr /bir ^"\^"%%a_*\d*^" >nul && set hn=%%b&& EXIT /b
 REM Power sounds not added:
 REM P1_POWER
@@ -2774,7 +2788,7 @@ if exist "%~dp0json2xmlb.exe" set %1="%~dp0json2xmlb.exe" & EXIT /b 0
 :checkPython
 for /f "delims=" %%a in ('where py 2^>nul') do (
  for /f "delims=" %%b in ('where zsnd 2^>nul') do goto setRF
- PATH | find "Programs\Python\Python" >nul && goto instRF
+ for /f "delims=" %%c in ('pip --version 2^>nul') do goto instRF
 )
 echo Python is not correctly installed. Check the Readme.
 goto Errors

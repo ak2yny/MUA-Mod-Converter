@@ -1,0 +1,4 @@
+*.exe
+*.dll
+
+cfgBuilder_info.cfg
